@@ -12,9 +12,10 @@ function formatHours(h: number): string {
 interface Props {
   loadDealerships: () => Promise<Dealership[]>;
   onSelect: (d: Dealership) => void;
+  onBack: () => void;
 }
 
-export function DealershipPicker({ loadDealerships, onSelect }: Props) {
+export function DealershipPicker({ loadDealerships, onSelect, onBack }: Props) {
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,6 +58,9 @@ export function DealershipPicker({ loadDealerships, onSelect }: Props) {
             <div className="card-arrow">→</div>
           </button>
         ))}
+      </div>
+      <div className="step-actions">
+        <button className="btn btn-ghost" onClick={onBack}>← Back</button>
       </div>
     </div>
   );

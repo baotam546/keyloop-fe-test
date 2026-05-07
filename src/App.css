@@ -183,6 +183,21 @@ input { font-family: inherit; }
 .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 600ms linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ─── Text inputs (guest form, vehicle form) ─── */
+.text-input { width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9375rem; color: var(--text); background: var(--card); outline: none; transition: border-color var(--transition); }
+.text-input:focus { border-color: var(--primary); }
+.text-input.input-error { border-color: var(--danger); }
+.field-group { display: flex; flex-direction: column; }
+.field-error { font-size: 0.8125rem; color: var(--danger); margin-top: 0.25rem; }
+
+/* ─── Other vehicle card ─── */
+.picker-card-other { border-style: dashed; }
+.picker-card-other .card-icon { background: var(--surface); color: var(--text-secondary); }
+
+/* ─── Unavailable time slot ─── */
+.time-slot.unavailable { opacity: 0.35; cursor: not-allowed; }
+.time-slot.unavailable:hover { border-color: var(--border); color: var(--text-secondary); background: var(--card); }
+
 /* ─── Responsive ─── */
 @media (max-width: 600px) {
   .stepper-label { display: none; }

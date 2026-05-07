@@ -1,8 +1,9 @@
-import type { Appointment, Hold } from '../types/domain';
+import type { Appointment, Hold, Vehicle } from '../types/domain';
 
 interface Store {
   appointments: Appointment[];
   holds: Hold[];
+  customVehicles: Vehicle[];
 }
 
 const STORAGE_KEY = 'appt-scheduler';
@@ -10,14 +11,20 @@ const STORAGE_KEY = 'appt-scheduler';
 function load(): Store {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { appointments: parsed.appointments ?? [], holds: [], customVehicles: parsed.customVehicles ?? [] };
+    }
   } catch {}
-  return { appointments: [], holds: [] };
+  return { appointments: [], holds: [], customVehicles: [] };
 }
 
 function save(store: Store): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ appointments: store.appointments }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      appointments: store.appointments,
+      customVehicles: store.customVehicles,
+    }));
   } catch {}
 }
 
@@ -57,4 +64,11 @@ export function getHold(id: string): Hold | undefined {
 export function cleanExpiredHolds(): void {
   const now = new Date().toISOString();
   _store.holds = _store.holds.filter(h => h.expiresAt > now);
+}
+
+export function addCustomVehicle(vehicle: Vehicle): void {
+  if (!_store.customVehicles.find(v => v.id === vehicle.id)) {
+    _store.customVehicles.push(vehicle);
+    save(_store);
+  }
 }

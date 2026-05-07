@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Appointment } from '../types/domain';
-import { listForCustomer, cancel, enrichAppointment } from '../services/appointments';
+import { listAll, cancel, enrichAppointment } from '../services/appointments';
 import { formatDateTime } from '../utils/time';
-import { CURRENT_CUSTOMER } from '../mocks/data';
 
 const STATUS_BADGE: Record<string, string> = {
   confirmed: 'badge-green',
@@ -19,7 +18,7 @@ export function AppointmentList() {
 
   const load = () => {
     setLoading(true);
-    listForCustomer(CURRENT_CUSTOMER.id).then(data => {
+    listAll().then(data => {
       setAppointments(data.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
       setLoading(false);
     });

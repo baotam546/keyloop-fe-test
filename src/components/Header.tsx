@@ -1,10 +1,6 @@
-interface Props {
-  view: 'book' | 'appointments';
-  onNavigate: (view: 'book' | 'appointments') => void;
-  customerName: string;
-}
+import { NavLink } from 'react-router-dom';
 
-export function Header({ view, onNavigate, customerName }: Props) {
+export function Header() {
   return (
     <header className="header">
       <div className="header-inner">
@@ -22,22 +18,16 @@ export function Header({ view, onNavigate, customerName }: Props) {
           <span className="header-title">ServiceDesk</span>
         </div>
         <nav className="header-nav">
-          <button
-            className={`nav-btn ${view === 'book' ? 'active' : ''}`}
-            onClick={() => onNavigate('book')}
-          >
+          <NavLink to="/" end className={({ isActive }) => `nav-btn${isActive ? ' active' : ''}`}>
             Book Service
-          </button>
-          <button
-            className={`nav-btn ${view === 'appointments' ? 'active' : ''}`}
-            onClick={() => onNavigate('appointments')}
-          >
+          </NavLink>
+          <NavLink to="/appointments" className={({ isActive }) => `nav-btn${isActive ? ' active' : ''}`}>
             My Appointments
-          </button>
+          </NavLink>
         </nav>
         <div className="header-user">
-          <div className="avatar">{customerName.charAt(0)}</div>
-          <span>{customerName}</span>
+          <div className="avatar">G</div>
+          <span>Guest</span>
         </div>
       </div>
     </header>

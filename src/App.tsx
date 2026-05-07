@@ -1,30 +1,23 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { BookingPage } from './pages/BookingPage';
 import { AppointmentsPage } from './pages/AppointmentsPage';
-import { CURRENT_CUSTOMER } from './mocks/data';
 import './App.css';
 
-type View = 'book' | 'appointments';
-
 function App() {
-  const [view, setView] = useState<View>('book');
-
   return (
-    <div className="app">
-      <Header
-        view={view}
-        onNavigate={setView}
-        customerName={CURRENT_CUSTOMER.name}
-      />
-      <main className="main">
-        {view === 'book' ? (
-          <BookingPage onViewAppointments={() => setView('appointments')} />
-        ) : (
-          <AppointmentsPage onBookNew={() => setView('book')} />
-        )}
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Header />
+        <main className="main">
+          <Routes>
+            <Route path="/" element={<BookingPage />} />
+            <Route path="/appointments" element={<AppointmentsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 

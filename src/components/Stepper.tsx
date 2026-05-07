@@ -1,10 +1,11 @@
 import type { BookingStep } from '../hooks/useBookingFlow';
 
 const STEPS = [
-  { label: 'Location', steps: [0] },
-  { label: 'Vehicle', steps: [1] },
-  { label: 'Service', steps: [2] },
-  { label: 'Schedule', steps: [3, 4] },
+  { label: 'Your Info', steps: [0] },
+  { label: 'Location', steps: [1] },
+  { label: 'Vehicle', steps: [2] },
+  { label: 'Service', steps: [3] },
+  { label: 'Schedule', steps: [4] },
   { label: 'Review', steps: [5] },
 ];
 

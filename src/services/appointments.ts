@@ -1,8 +1,8 @@
 import { simulateDelay } from './delay';
-import { getStore, addAppointment, updateAppointmentStatus, getHold, removeHold } from './store';
+import { getStore, addAppointment, updateAppointmentStatus, getHold, removeHold, addCustomVehicle } from './store';
 import { BAYS, DEALERSHIPS, SERVICE_TYPES, TECHNICIANS, VEHICLES } from '../mocks/data';
 import { uid } from '../utils/time';
-import type { Appointment } from '../types/domain';
+import type { Appointment, Vehicle } from '../types/domain';
 
 export async function confirm(
   holdId: string,
@@ -43,16 +43,27 @@ export async function listForCustomer(customerId: string): Promise<Appointment[]
   return getStore().appointments.filter(a => a.customerId === customerId);
 }
 
+export async function listAll(): Promise<Appointment[]> {
+  await simulateDelay();
+  return [...getStore().appointments];
+}
+
+
+export function storeCustomVehicle(vehicle: Vehicle): void {
+  addCustomVehicle(vehicle);
+}
+
 export async function cancel(appointmentId: string): Promise<void> {
   await simulateDelay(100, 200);
   updateAppointmentStatus(appointmentId, 'cancelled');
 }
 
 export function enrichAppointment(appt: Appointment) {
+  const allVehicles = [...VEHICLES, ...getStore().customVehicles];
   return {
     ...appt,
     dealership: DEALERSHIPS.find(d => d.id === appt.dealershipId),
-    vehicle: VEHICLES.find(v => v.id === appt.vehicleId),
+    vehicle: allVehicles.find(v => v.id === appt.vehicleId),
     technician: TECHNICIANS.find(t => t.id === appt.technicianId),
     serviceBay: BAYS.find(b => b.id === appt.serviceBayId),
     serviceType: SERVICE_TYPES.find(st => st.id === appt.serviceTypeId),

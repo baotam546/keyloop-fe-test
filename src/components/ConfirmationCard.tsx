@@ -1,9 +1,10 @@
-import type { Appointment, Dealership, Vehicle, ServiceType, Technician, ServiceBay } from '../types/domain';
+import type { Appointment, Dealership, Vehicle, ServiceType, Technician, ServiceBay, GuestCustomer } from '../types/domain';
 import { formatDateTime } from '../utils/time';
 
 const BAY_LABELS: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
 
 interface Props {
+  customerInfo: GuestCustomer;
   appointment: Appointment;
   dealership: Dealership;
   vehicle: Vehicle;
@@ -15,7 +16,7 @@ interface Props {
 }
 
 export function ConfirmationCard({
-  appointment, dealership, vehicle, serviceType, technician, serviceBay,
+  customerInfo, appointment, dealership, vehicle, serviceType, technician, serviceBay,
   onBookAnother, onViewAppointments,
 }: Props) {
   return (
@@ -26,7 +27,7 @@ export function ConfirmationCard({
         </svg>
       </div>
       <h2 className="confirmation-title">Appointment Confirmed!</h2>
-      <p className="confirmation-subtitle">Your booking has been secured. See you soon.</p>
+      <p className="confirmation-subtitle">Your booking has been secured. See you soon, {customerInfo.name.split(' ')[0]}!</p>
 
       <div className="confirmation-id">
         <span className="conf-id-label">Confirmation ID</span>
@@ -35,12 +36,22 @@ export function ConfirmationCard({
 
       <div className="review-card" style={{ marginTop: '1.5rem' }}>
         <div className="review-row">
+          <span className="review-label">Contact</span>
+          <span className="review-value">
+            {customerInfo.name}<br />
+            <small>{customerInfo.email} · {customerInfo.phone}</small>
+          </span>
+        </div>
+        <div className="review-row">
           <span className="review-label">Dealership</span>
           <span className="review-value">{dealership.name}<br /><small>{dealership.address}, {dealership.city}</small></span>
         </div>
         <div className="review-row">
           <span className="review-label">Vehicle</span>
-          <span className="review-value">{vehicle.year} {vehicle.make} {vehicle.model}<br /><small>VIN: {vehicle.vin}</small></span>
+          <span className="review-value">
+            {vehicle.year} {vehicle.make} {vehicle.model}
+            {vehicle.vin && <><br /><small>VIN: {vehicle.vin}</small></>}
+          </span>
         </div>
         <div className="review-row">
           <span className="review-label">Service</span>

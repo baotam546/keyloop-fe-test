@@ -1,4 +1,10 @@
 export type BayType = 'lift' | 'flat' | 'paint';
+
+export interface GuestCustomer {
+  name: string;
+  email: string;
+  phone: string;
+}
 export type AppointmentStatus = 'requested' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
 
 export interface OpeningHours {

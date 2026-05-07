@@ -1,32 +1,33 @@
+import { useNavigate } from 'react-router-dom';
 import { useBookingFlow } from '../hooks/useBookingFlow';
 import { Stepper } from '../components/Stepper';
+import { CustomerInfoForm } from '../components/CustomerInfoForm';
 import { DealershipPicker } from '../components/DealershipPicker';
 import { VehiclePicker } from '../components/VehiclePicker';
 import { ServiceTypePicker } from '../components/ServiceTypePicker';
 import { DateTimePicker } from '../components/DateTimePicker';
-import { SlotPicker } from '../components/SlotPicker';
 import { BookingReview } from '../components/BookingReview';
 import { ConfirmationCard } from '../components/ConfirmationCard';
 import { enrichAppointment } from '../services/appointments';
 
-interface Props {
-  onViewAppointments: () => void;
-}
-
-export function BookingPage({ onViewAppointments }: Props) {
+export function BookingPage() {
+  const navigate = useNavigate();
   const flow = useBookingFlow();
   const { state } = flow;
 
   const renderStep = () => {
     switch (state.step) {
       case 0:
+        return <CustomerInfoForm onSubmit={flow.submitCustomerInfo} />;
+      case 1:
         return (
           <DealershipPicker
             loadDealerships={flow.loadDealerships}
             onSelect={flow.selectDealership}
+            onBack={flow.goBack}
           />
         );
-      case 1:
+      case 2:
         return (
           <VehiclePicker
             loadVehicles={flow.loadVehicles}
@@ -34,7 +35,7 @@ export function BookingPage({ onViewAppointments }: Props) {
             onBack={flow.goBack}
           />
         );
-      case 2:
+      case 3:
         return (
           <ServiceTypePicker
             loadServiceTypes={flow.loadServiceTypes}
@@ -42,34 +43,25 @@ export function BookingPage({ onViewAppointments }: Props) {
             onBack={flow.goBack}
           />
         );
-      case 3:
+      case 4:
         return (
           <DateTimePicker
             dealership={state.dealership!}
             serviceType={state.serviceType!}
             date={state.date}
             time={state.time}
+            slotAvailability={state.slotAvailability}
             loading={state.loading}
             error={state.error}
             onDateChange={flow.setDate}
-            onTimeChange={flow.setTime}
-            onCheckAvailability={flow.checkAvailability}
-            onBack={flow.goBack}
-          />
-        );
-      case 4:
-        return (
-          <SlotPicker
-            slots={state.availableSlots}
-            loading={state.loading}
-            error={state.error}
-            onSelect={flow.selectSlot}
+            onTimeSelect={flow.selectTime}
             onBack={flow.goBack}
           />
         );
       case 5:
         return (
           <BookingReview
+            customerInfo={state.customerInfo!}
             dealership={state.dealership!}
             vehicle={state.vehicle!}
             serviceType={state.serviceType!}
@@ -86,14 +78,15 @@ export function BookingPage({ onViewAppointments }: Props) {
         const enriched = enrichAppointment(state.appointment!);
         return (
           <ConfirmationCard
+            customerInfo={state.customerInfo!}
             appointment={state.appointment!}
             dealership={enriched.dealership!}
-            vehicle={enriched.vehicle!}
+            vehicle={state.vehicle!}
             serviceType={enriched.serviceType!}
             technician={enriched.technician!}
             serviceBay={enriched.serviceBay!}
             onBookAnother={flow.reset}
-            onViewAppointments={onViewAppointments}
+            onViewAppointments={() => navigate('/appointments')}
           />
         );
       }
