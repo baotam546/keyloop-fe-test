@@ -35,6 +35,17 @@ export function Header() {
           >
             My Appointments
           </NavLink>
+          <NavLink
+            to="/technician"
+            className={({ isActive }) =>
+              cn('px-3 py-1.5 text-sm rounded-md font-medium transition-colors',
+                isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/60')
+            }
+          >
+            Technician View
+          </NavLink>
         </nav>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Avatar size="sm">

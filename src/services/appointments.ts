@@ -58,6 +58,11 @@ export async function cancel(appointmentId: string): Promise<void> {
   updateAppointmentStatus(appointmentId, 'cancelled');
 }
 
+export async function setStatus(appointmentId: string, status: Appointment['status']): Promise<void> {
+  await simulateDelay(100, 200);
+  updateAppointmentStatus(appointmentId, status);
+}
+
 export function enrichAppointment(appt: Appointment) {
   const allVehicles = [...VEHICLES, ...getStore().customVehicles];
   return {
