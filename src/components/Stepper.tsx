@@ -1,42 +1,48 @@
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { BookingStep } from '../hooks/useBookingFlow';
 
 const STEPS = [
-  { label: 'Your Info', steps: [0] },
-  { label: 'Location', steps: [1] },
-  { label: 'Vehicle', steps: [2] },
-  { label: 'Service', steps: [3] },
-  { label: 'Schedule', steps: [4] },
-  { label: 'Review', steps: [5] },
+  { label: 'Your Info', step: 0 },
+  { label: 'Location',  step: 1 },
+  { label: 'Vehicle',   step: 2 },
+  { label: 'Service',   step: 3 },
+  { label: 'Schedule',  step: 4 },
+  { label: 'Review',    step: 5 },
 ];
 
-interface Props {
-  currentStep: BookingStep;
-}
+interface Props { currentStep: BookingStep }
 
 export function Stepper({ currentStep }: Props) {
   if (currentStep === 6) return null;
 
   return (
-    <div className="stepper">
+    <div className="flex items-center mb-8">
       {STEPS.map((s, idx) => {
-        const isActive = s.steps.includes(currentStep);
-        const isCompleted = s.steps[s.steps.length - 1] < currentStep;
+        const isCompleted = currentStep > s.step;
+        const isActive    = currentStep === s.step;
         return (
-          <div key={s.label} className="stepper-item">
-            <div className={`stepper-circle ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
-              {isCompleted ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : (
-                idx + 1
-              )}
+          <div key={s.label} className="flex items-center flex-1 last:flex-none">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className={cn(
+                'size-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-colors',
+                isCompleted ? 'bg-foreground border-foreground text-background'
+                : isActive  ? 'border-foreground text-foreground bg-background'
+                :             'border-border text-muted-foreground'
+              )}>
+                {isCompleted ? <Check className="size-3" strokeWidth={3} /> : idx + 1}
+              </div>
+              <span className={cn(
+                'text-xs font-medium whitespace-nowrap hidden sm:block',
+                isActive    ? 'text-foreground'
+                : isCompleted ? 'text-muted-foreground'
+                :               'text-muted-foreground/50'
+              )}>
+                {s.label}
+              </span>
             </div>
-            <span className={`stepper-label ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
-              {s.label}
-            </span>
             {idx < STEPS.length - 1 && (
-              <div className={`stepper-line ${isCompleted ? 'completed' : ''}`} />
+              <div className={cn('flex-1 h-px mx-2', isCompleted ? 'bg-foreground' : 'bg-border')} />
             )}
           </div>
         );

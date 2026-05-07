@@ -17,76 +17,36 @@ export function BookingPage() {
 
   const renderStep = () => {
     switch (state.step) {
-      case 0:
-        return <CustomerInfoForm onSubmit={flow.submitCustomerInfo} />;
-      case 1:
-        return (
-          <DealershipPicker
-            loadDealerships={flow.loadDealerships}
-            onSelect={flow.selectDealership}
-            onBack={flow.goBack}
-          />
-        );
-      case 2:
-        return (
-          <VehiclePicker
-            loadVehicles={flow.loadVehicles}
-            onSelect={flow.selectVehicle}
-            onBack={flow.goBack}
-          />
-        );
-      case 3:
-        return (
-          <ServiceTypePicker
-            loadServiceTypes={flow.loadServiceTypes}
-            onSelect={flow.selectServiceType}
-            onBack={flow.goBack}
-          />
-        );
-      case 4:
-        return (
-          <DateTimePicker
-            dealership={state.dealership!}
-            serviceType={state.serviceType!}
-            date={state.date}
-            time={state.time}
-            slotAvailability={state.slotAvailability}
-            loading={state.loading}
-            error={state.error}
-            onDateChange={flow.setDate}
-            onTimeSelect={flow.selectTime}
-            onBack={flow.goBack}
-          />
-        );
-      case 5:
-        return (
-          <BookingReview
-            customerInfo={state.customerInfo!}
-            dealership={state.dealership!}
-            vehicle={state.vehicle!}
-            serviceType={state.serviceType!}
-            slot={state.selectedSlot!}
-            hold={state.hold}
-            loading={state.loading}
-            error={state.error}
-            onConfirm={flow.confirmBooking}
-            onBack={flow.goBack}
-            onHoldExpired={flow.onHoldExpired}
-          />
-        );
+      case 0: return <CustomerInfoForm onSubmit={flow.submitCustomerInfo} />;
+      case 1: return <DealershipPicker loadDealerships={flow.loadDealerships} onSelect={flow.selectDealership} onBack={flow.goBack} />;
+      case 2: return <VehiclePicker    loadVehicles={flow.loadVehicles}       onSelect={flow.selectVehicle}    onBack={flow.goBack} />;
+      case 3: return <ServiceTypePicker loadServiceTypes={flow.loadServiceTypes} onSelect={flow.selectServiceType} onBack={flow.goBack} />;
+      case 4: return (
+        <DateTimePicker
+          dealership={state.dealership!} serviceType={state.serviceType!}
+          date={state.date} time={state.time} slotAvailability={state.slotAvailability}
+          loading={state.loading} error={state.error}
+          onDateChange={flow.setDate} onTimeSelect={flow.selectTime} onBack={flow.goBack}
+        />
+      );
+      case 5: return (
+        <BookingReview
+          customerInfo={state.customerInfo!} dealership={state.dealership!}
+          vehicle={state.vehicle!} serviceType={state.serviceType!}
+          slot={state.selectedSlot!} hold={state.hold}
+          loading={state.loading} error={state.error}
+          onConfirm={flow.confirmBooking} onBack={flow.goBack} onHoldExpired={flow.onHoldExpired}
+        />
+      );
       case 6: {
         const enriched = enrichAppointment(state.appointment!);
         return (
           <ConfirmationCard
-            customerInfo={state.customerInfo!}
-            appointment={state.appointment!}
-            dealership={enriched.dealership!}
-            vehicle={state.vehicle!}
-            serviceType={enriched.serviceType!}
-            technician={enriched.technician!}
+            customerInfo={state.customerInfo!} appointment={state.appointment!}
+            dealership={enriched.dealership!} vehicle={state.vehicle!}
+            serviceType={enriched.serviceType!} technician={enriched.technician!}
             serviceBay={enriched.serviceBay!}
-            onBookAnother={flow.reset}
-            onViewAppointments={() => navigate('/appointments')}
+            onBookAnother={flow.reset} onViewAppointments={() => navigate('/appointments')}
           />
         );
       }
@@ -94,11 +54,9 @@ export function BookingPage() {
   };
 
   return (
-    <div className="page-content">
+    <div className="max-w-2xl mx-auto px-4 py-8">
       <Stepper currentStep={state.step} />
-      <div className="step-container">
-        {renderStep()}
-      </div>
+      <div>{renderStep()}</div>
     </div>
   );
 }

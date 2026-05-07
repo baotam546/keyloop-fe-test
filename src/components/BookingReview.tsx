@@ -1,8 +1,24 @@
+import { AlertCircle, ArrowLeft, Check } from 'lucide-react';
 import type { Dealership, Vehicle, ServiceType, AvailableSlot, Hold, GuestCustomer } from '../types/domain';
 import { formatDateTime } from '../utils/time';
 import { HoldCountdown } from './HoldCountdown';
+import { Button } from './ui/button';
+import { Card } from './ui/card';
+import { Separator } from './ui/separator';
+import { Alert, AlertDescription } from './ui/alert';
 
-const BAY_LABELS: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
+const BAY_LABEL: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-4 px-5 py-3.5">
+      <span className="w-32 flex-shrink-0 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pt-0.5">
+        {label}
+      </span>
+      <span className="text-sm text-foreground flex-1">{children}</span>
+    </div>
+  );
+}
 
 interface Props {
   customerInfo: GuestCustomer;
@@ -25,67 +41,82 @@ export function BookingReview({
   const holdExpired = !hold;
 
   return (
-    <div className="picker-section">
-      <div className="picker-header">
-        <h2>Review & Confirm</h2>
-        <p>Please review your appointment details before confirming.</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Review & Confirm</h2>
+        <p className="text-sm text-muted-foreground mt-1">Please review your appointment details.</p>
       </div>
 
-      {hold && (
-        <HoldCountdown expiresAt={hold.expiresAt} onExpired={onHoldExpired} />
-      )}
+      {hold    && <HoldCountdown expiresAt={hold.expiresAt} onExpired={onHoldExpired} />}
       {holdExpired && (
-        <div className="alert alert-danger">Your slot hold has expired. Please go back and select a new time.</div>
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>Your slot hold expired. Please go back and select a new time.</AlertDescription>
+        </Alert>
       )}
 
-      <div className="review-card">
-        <div className="review-row">
-          <span className="review-label">Contact</span>
-          <span className="review-value">
-            {customerInfo.name}<br />
-            <small>{customerInfo.email} · {customerInfo.phone}</small>
+      <Card className="overflow-hidden">
+        <Row label="Contact">
+          <span className="font-medium">{customerInfo.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">
+            {customerInfo.email} · {customerInfo.phone}
           </span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Dealership</span>
-          <span className="review-value">{dealership.name}<br /><small>{dealership.address}, {dealership.city}</small></span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Vehicle</span>
-          <span className="review-value">
-            {vehicle.year} {vehicle.make} {vehicle.model}
-            {vehicle.vin && <><br /><small>VIN: {vehicle.vin}</small></>}
+        </Row>
+        <Separator />
+        <Row label="Dealership">
+          <span className="font-medium">{dealership.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">{dealership.address}, {dealership.city}</span>
+        </Row>
+        <Separator />
+        <Row label="Vehicle">
+          <span className="font-medium">{vehicle.year} {vehicle.make} {vehicle.model}</span>
+          {vehicle.vin && <span className="block text-xs text-muted-foreground font-mono mt-0.5">VIN: {vehicle.vin}</span>}
+        </Row>
+        <Separator />
+        <Row label="Service">
+          <span className="font-medium">{serviceType.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">
+            {serviceType.estimatedDurationMin} min · {BAY_LABEL[serviceType.requiredBayType]}
           </span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Service</span>
-          <span className="review-value">{serviceType.name}<br /><small>{serviceType.estimatedDurationMin} min · {BAY_LABELS[serviceType.requiredBayType]}</small></span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Date & Time</span>
-          <span className="review-value">{formatDateTime(slot.startsAt)}<br /><small>Until {formatDateTime(slot.endsAt)}</small></span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Assigned Technician</span>
-          <span className="review-value">{slot.technician.name}</span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Assigned Bay</span>
-          <span className="review-value">Bay {slot.serviceBay.bayNumber} — {BAY_LABELS[slot.serviceBay.bayType]}</span>
-        </div>
-      </div>
+        </Row>
+        <Separator />
+        <Row label="Date & Time">
+          <span className="font-medium">{formatDateTime(slot.startsAt)}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">Until {formatDateTime(slot.endsAt)}</span>
+        </Row>
+        <Separator />
+        <Row label="Technician">
+          <span className="font-medium">{slot.technician.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">Auto-assigned</span>
+        </Row>
+        <Separator />
+        <Row label="Bay">
+          Bay {slot.serviceBay.bayNumber} — {BAY_LABEL[slot.serviceBay.bayType]}
+          <span className="block text-xs text-muted-foreground mt-0.5">Auto-assigned</span>
+        </Row>
+      </Card>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-      <div className="step-actions">
-        <button className="btn btn-ghost" onClick={onBack} disabled={loading}>← Back</button>
-        <button
-          className="btn btn-success"
-          onClick={onConfirm}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" disabled={loading} onClick={onBack}>
+          <ArrowLeft className="size-4" /> Back
+        </Button>
+        <Button
           disabled={loading || holdExpired}
+          onClick={onConfirm}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white border-0"
         >
-          {loading ? <><div className="spinner-sm" /> Confirming…</> : '✓ Confirm Booking'}
-        </button>
+          {loading
+            ? <><span className="size-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Confirming…</>
+            : <><Check className="size-4" /> Confirm Booking</>
+          }
+        </Button>
       </div>
     </div>
   );

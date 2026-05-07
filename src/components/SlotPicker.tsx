@@ -1,5 +1,11 @@
+import { AlertCircle, ArrowLeft, ChevronRight, Loader2, User, Monitor } from 'lucide-react';
 import type { AvailableSlot } from '../types/domain';
 import { formatDateTime } from '../utils/time';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Card, CardContent } from './ui/card';
+import { Alert, AlertDescription } from './ui/alert';
+import { Separator } from './ui/separator';
 
 const BAY_LABELS: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
 
@@ -13,58 +19,73 @@ interface Props {
 
 export function SlotPicker({ slots, loading, error, onSelect, onBack }: Props) {
   return (
-    <div className="picker-section">
-      <div className="picker-header">
-        <h2>Available Slots</h2>
-        <p>{slots.length} slot{slots.length !== 1 ? 's' : ''} available — pick your preferred technician and bay.</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Available Slots</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          {slots.length} slot{slots.length !== 1 ? 's' : ''} available — pick your preferred technician and bay.
+        </p>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-      <div className="slot-list">
+      <div className="flex flex-col gap-3">
         {slots.map((slot, idx) => (
           <button
             key={idx}
-            className="slot-card"
-            onClick={() => onSelect(slot)}
             disabled={loading}
+            onClick={() => onSelect(slot)}
+            className="group w-full text-left rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/20 hover:shadow-sm disabled:pointer-events-none disabled:opacity-50"
           >
-            <div className="slot-time">
-              <div className="slot-time-label">Start</div>
-              <div className="slot-time-value">{formatDateTime(slot.startsAt)}</div>
-            </div>
-            <div className="slot-divider" />
-            <div className="slot-details">
-              <div className="slot-detail-row">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span><strong>{slot.technician.name}</strong></span>
-                <div className="cert-tags">
-                  {slot.technician.certifications.map(c => (
-                    <span key={c} className="badge badge-blue">{c}</span>
-                  ))}
+            <Card className="shadow-none ring-0 bg-transparent py-0 gap-3">
+              <CardContent className="px-0 grid gap-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Start Time</p>
+                    <p className="text-sm font-semibold text-foreground mt-0.5">{formatDateTime(slot.startsAt)}</p>
+                  </div>
+                  {loading
+                    ? <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                    : <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  }
                 </div>
-              </div>
-              <div className="slot-detail-row">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                  <line x1="8" y1="21" x2="16" y2="21"/>
-                  <line x1="12" y1="17" x2="12" y2="21"/>
-                </svg>
-                <span>Bay {slot.serviceBay.bayNumber} — {BAY_LABELS[slot.serviceBay.bayType]}</span>
-              </div>
-            </div>
-            <div className="slot-action">
-              {loading ? <div className="spinner-sm" /> : 'Select →'}
-            </div>
+                <Separator />
+                <div className="flex items-start gap-3">
+                  <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <User className="size-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{slot.technician.name}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {slot.technician.certifications.map(c => (
+                        <Badge key={c} variant="blue">{c}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Monitor className="size-4 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-foreground">
+                    Bay {slot.serviceBay.bayNumber} — {BAY_LABELS[slot.serviceBay.bayType]}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </button>
         ))}
       </div>
 
-      <div className="step-actions">
-        <button className="btn btn-ghost" onClick={onBack}>← Back</button>
+      <div>
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft className="size-4" /> Back
+        </Button>
       </div>
     </div>
   );

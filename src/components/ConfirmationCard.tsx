@@ -1,7 +1,23 @@
+import { CheckCircle2 } from 'lucide-react';
 import type { Appointment, Dealership, Vehicle, ServiceType, Technician, ServiceBay, GuestCustomer } from '../types/domain';
 import { formatDateTime } from '../utils/time';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Card } from './ui/card';
+import { Separator } from './ui/separator';
 
-const BAY_LABELS: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
+const BAY_LABEL: Record<string, string> = { lift: 'Lift Bay', flat: 'Flat Bay', paint: 'Paint Bay' };
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-4 px-5 py-3.5">
+      <span className="w-32 flex-shrink-0 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground pt-0.5">
+        {label}
+      </span>
+      <span className="text-sm text-foreground flex-1">{children}</span>
+    </div>
+  );
+}
 
 interface Props {
   customerInfo: GuestCustomer;
@@ -20,64 +36,58 @@ export function ConfirmationCard({
   onBookAnother, onViewAppointments,
 }: Props) {
   return (
-    <div className="confirmation-page">
-      <div className="confirmation-icon">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </div>
-      <h2 className="confirmation-title">Appointment Confirmed!</h2>
-      <p className="confirmation-subtitle">Your booking has been secured. See you soon, {customerInfo.name.split(' ')[0]}!</p>
-
-      <div className="confirmation-id">
-        <span className="conf-id-label">Confirmation ID</span>
-        <span className="conf-id-value">{appointment.id}</span>
+    <div className="flex flex-col items-center gap-6 text-center pt-4">
+      <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+        <CheckCircle2 className="size-8" strokeWidth={1.5} />
       </div>
 
-      <div className="review-card" style={{ marginTop: '1.5rem' }}>
-        <div className="review-row">
-          <span className="review-label">Contact</span>
-          <span className="review-value">
-            {customerInfo.name}<br />
-            <small>{customerInfo.email} · {customerInfo.phone}</small>
-          </span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Dealership</span>
-          <span className="review-value">{dealership.name}<br /><small>{dealership.address}, {dealership.city}</small></span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Vehicle</span>
-          <span className="review-value">
-            {vehicle.year} {vehicle.make} {vehicle.model}
-            {vehicle.vin && <><br /><small>VIN: {vehicle.vin}</small></>}
-          </span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Service</span>
-          <span className="review-value">{serviceType.name}<br /><small>{serviceType.estimatedDurationMin} min</small></span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Date & Time</span>
-          <span className="review-value">{formatDateTime(appointment.scheduledStart)}</span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Technician</span>
-          <span className="review-value">{technician.name}</span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Bay</span>
-          <span className="review-value">Bay {serviceBay.bayNumber} — {BAY_LABELS[serviceBay.bayType]}</span>
-        </div>
-        <div className="review-row">
-          <span className="review-label">Status</span>
-          <span className="review-value"><span className="badge badge-green">Confirmed</span></span>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Appointment Confirmed!</h2>
+        <p className="text-muted-foreground mt-1.5">
+          Your booking is secured. See you soon, {customerInfo.name.split(' ')[0]}!
+        </p>
       </div>
 
-      <div className="confirmation-actions">
-        <button className="btn btn-ghost" onClick={onViewAppointments}>View My Appointments</button>
-        <button className="btn btn-primary" onClick={onBookAnother}>Book Another Service</button>
+      <div className="flex flex-col items-center gap-1 rounded-lg border border-border bg-muted/40 px-6 py-3">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Confirmation ID</span>
+        <span className="font-mono text-lg font-semibold tracking-wide">{appointment.id}</span>
+      </div>
+
+      <Card className="w-full text-left overflow-hidden">
+        <Row label="Contact">
+          <span className="font-medium">{customerInfo.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">{customerInfo.email} · {customerInfo.phone}</span>
+        </Row>
+        <Separator />
+        <Row label="Dealership">
+          <span className="font-medium">{dealership.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">{dealership.address}, {dealership.city}</span>
+        </Row>
+        <Separator />
+        <Row label="Vehicle">
+          <span className="font-medium">{vehicle.year} {vehicle.make} {vehicle.model}</span>
+          {vehicle.vin && <span className="block text-xs text-muted-foreground font-mono mt-0.5">VIN: {vehicle.vin}</span>}
+        </Row>
+        <Separator />
+        <Row label="Service">
+          <span className="font-medium">{serviceType.name}</span>
+          <span className="block text-xs text-muted-foreground mt-0.5">{serviceType.estimatedDurationMin} min</span>
+        </Row>
+        <Separator />
+        <Row label="Date & Time">
+          {formatDateTime(appointment.scheduledStart)}
+        </Row>
+        <Separator />
+        <Row label="Technician">{technician.name}</Row>
+        <Separator />
+        <Row label="Bay">Bay {serviceBay.bayNumber} — {BAY_LABEL[serviceBay.bayType]}</Row>
+        <Separator />
+        <Row label="Status"><Badge variant="success">Confirmed</Badge></Row>
+      </Card>
+
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button variant="outline" onClick={onViewAppointments}>View My Appointments</Button>
+        <Button onClick={onBookAnother}>Book Another Service</Button>
       </div>
     </div>
   );

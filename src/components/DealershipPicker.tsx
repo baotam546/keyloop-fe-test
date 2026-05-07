@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { MapPin, ChevronRight, ArrowLeft } from 'lucide-react';
 import type { Dealership } from '../types/domain';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function formatHours(h: number): string {
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hour = h > 12 ? h - 12 : h;
-  return `${hour}:00 ${period}`;
+function fmtHour(h: number) {
+  const p = h >= 12 ? 'PM' : 'AM';
+  return `${h > 12 ? h - 12 : h}:00 ${p}`;
 }
 
 interface Props {
@@ -20,47 +22,52 @@ export function DealershipPicker({ loadDealerships, onSelect, onBack }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDealerships().then(data => {
-      setDealerships(data);
-      setLoading(false);
-    });
+    loadDealerships().then(data => { setDealerships(data); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="loading-state"><div className="spinner" /><p>Loading locations…</p></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+      <div className="size-5 animate-spin rounded-full border-2 border-border border-t-foreground" />
+      <p className="text-sm">Loading locations…</p>
+    </div>
+  );
 
   return (
-    <div className="picker-section">
-      <div className="picker-header">
-        <h2>Choose a Dealership</h2>
-        <p>Select the service location for your appointment.</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Choose a Location</h2>
+        <p className="text-sm text-muted-foreground mt-1">Select the service location for your appointment.</p>
       </div>
-      <div className="card-grid">
+
+      <div className="flex flex-col gap-3">
         {dealerships.map(d => (
-          <button key={d.id} className="picker-card" onClick={() => onSelect(d)}>
-            <div className="card-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
+          <button
+            key={d.id}
+            className="group flex w-full items-start gap-4 rounded-xl border border-border bg-card p-4 text-left transition-all hover:border-foreground/20 hover:shadow-sm"
+            onClick={() => onSelect(d)}
+          >
+            <div className="mt-0.5 flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
+              <MapPin className="size-5 text-muted-foreground" />
             </div>
-            <div className="card-body">
-              <h3 className="card-title">{d.name}</h3>
-              <p className="card-subtitle">{d.address}, {d.city}</p>
-              <div className="card-meta">
-                <span className="badge badge-blue">
-                  {d.openingHours.daysOfWeek.map(n => DAY_NAMES[n]).join(', ')}
-                </span>
-                <span className="card-hours">
-                  {formatHours(d.openingHours.startHour)} – {formatHours(d.openingHours.endHour)}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">{d.name}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{d.address}, {d.city}</p>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="secondary">
+                  {d.openingHours.daysOfWeek.map(n => DAY_NAMES[n]).join(' · ')}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {fmtHour(d.openingHours.startHour)} – {fmtHour(d.openingHours.endHour)}
                 </span>
               </div>
             </div>
-            <div className="card-arrow">→</div>
+            <ChevronRight className="size-4 text-muted-foreground flex-shrink-0 mt-0.5 group-hover:text-foreground transition-colors" />
           </button>
         ))}
       </div>
-      <div className="step-actions">
-        <button className="btn btn-ghost" onClick={onBack}>← Back</button>
+
+      <div>
+        <Button variant="ghost" onClick={onBack}><ArrowLeft className="size-4" /> Back</Button>
       </div>
     </div>
   );

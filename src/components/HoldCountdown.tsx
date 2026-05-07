@@ -1,4 +1,6 @@
+import { Timer } from 'lucide-react';
 import { useCountdown } from '../hooks/useCountdown';
+import { Alert, AlertDescription } from './ui/alert';
 
 interface Props {
   expiresAt: string;
@@ -7,20 +9,20 @@ interface Props {
 
 export function HoldCountdown({ expiresAt, onExpired }: Props) {
   const remaining = useCountdown(expiresAt, onExpired);
-  const isUrgent = remaining > 0 && remaining <= 10;
+  const isUrgent  = remaining > 0 && remaining <= 10;
   const isExpired = remaining <= 0;
 
+  const variant = isExpired ? 'destructive' : isUrgent ? 'warning' : 'success';
+
   return (
-    <div className={`hold-countdown ${isUrgent ? 'urgent' : ''} ${isExpired ? 'expired' : ''}`}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
-      {isExpired ? (
-        <span>Hold expired — please select a new slot</span>
-      ) : (
-        <span>Slot held for <strong>{remaining}s</strong> — confirm before it expires</span>
-      )}
-    </div>
+    <Alert variant={variant}>
+      <Timer />
+      <AlertDescription>
+        {isExpired
+          ? 'Hold expired — please select a new time.'
+          : <span>Slot held for <strong>{remaining}s</strong> — confirm before it expires.</span>
+        }
+      </AlertDescription>
+    </Alert>
   );
 }

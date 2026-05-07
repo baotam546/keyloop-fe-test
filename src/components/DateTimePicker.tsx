@@ -1,5 +1,12 @@
+import { AlertCircle, AlertTriangle, ArrowLeft, CalendarDays, Loader2 } from 'lucide-react';
 import type { Dealership, ServiceType } from '../types/domain';
 import { today, getTimeSlots, formatTimeSlot, isDealershipOpen } from '../utils/time';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Card, CardContent } from './ui/card';
+import { Alert, AlertDescription } from './ui/alert';
+import { cn } from '@/lib/utils';
 
 interface Props {
   dealership: Dealership;
@@ -18,86 +25,108 @@ export function DateTimePicker({
   dealership, serviceType, date, time, slotAvailability, loading, error,
   onDateChange, onTimeSelect, onBack,
 }: Props) {
-  const allSlots = date && isDealershipOpen(dealership.openingHours, date)
+  const allSlots      = date && isDealershipOpen(dealership.openingHours, date)
     ? getTimeSlots(dealership.openingHours, serviceType.estimatedDurationMin)
     : [];
-
-  const isClosedDay = date && !isDealershipOpen(dealership.openingHours, date);
-  const hasLoadedAvailability = allSlots.length > 0 && Object.keys(slotAvailability).length > 0;
+  const isClosedDay   = date && !isDealershipOpen(dealership.openingHours, date);
+  const hasAvail      = allSlots.length > 0 && Object.keys(slotAvailability).length > 0;
+  const anyAvailable  = allSlots.some(s => slotAvailability[s]);
 
   return (
-    <div className="picker-section">
-      <div className="picker-header">
-        <h2>Pick a Date & Time</h2>
-        <p>Select when you'd like to bring in your vehicle. Available times are highlighted.</p>
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">Pick a Date & Time</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Available time slots are highlighted — click one to book.
+        </p>
       </div>
 
-      <div className="card">
-        <label className="field-label">Date</label>
-        <input
-          type="date"
-          className="date-input"
-          min={today()}
-          value={date}
-          disabled={loading}
-          onChange={e => onDateChange(e.target.value)}
-        />
-
-        {isClosedDay && (
-          <div className="alert alert-warning">
-            {dealership.name} is closed on this day. Please select another date.
+      <Card>
+        <CardContent className="pt-6 grid gap-5">
+          <div className="grid gap-1.5">
+            <Label htmlFor="date-pick" className="flex items-center gap-1.5">
+              <CalendarDays className="size-3.5 text-muted-foreground" /> Date
+            </Label>
+            <Input
+              id="date-pick"
+              type="date"
+              min={today()}
+              value={date}
+              disabled={loading}
+              className="max-w-xs"
+              onChange={e => onDateChange(e.target.value)}
+            />
           </div>
-        )}
 
-        {date && !isClosedDay && loading && (
-          <div className="loading-state" style={{ padding: '1.5rem 0 0.5rem' }}>
-            <div className="spinner" />
-            <p style={{ margin: 0, fontSize: '0.875rem' }}>Checking available times…</p>
-          </div>
-        )}
+          {isClosedDay && (
+            <Alert variant="warning">
+              <AlertTriangle />
+              <AlertDescription>{dealership.name} is closed on this day. Please choose another date.</AlertDescription>
+            </Alert>
+          )}
 
-        {hasLoadedAvailability && (
-          <>
-            <label className="field-label" style={{ marginTop: '1.25rem' }}>
-              Time
-              <span style={{ marginLeft: '0.5rem', fontWeight: 400, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                — click an available slot
-              </span>
-            </label>
-            <div className="time-grid">
-              {allSlots.map(slot => {
-                const available = slotAvailability[slot] ?? false;
-                const isSelected = time === slot;
-                return (
-                  <button
-                    key={slot}
-                    className={`time-slot ${isSelected ? 'selected' : ''} ${!available ? 'unavailable' : ''}`}
-                    onClick={() => available && !loading && onTimeSelect(slot)}
-                    disabled={!available || loading}
-                    title={available ? '' : 'No availability at this time'}
-                  >
-                    {formatTimeSlot(slot)}
-                  </button>
-                );
-              })}
+          {date && !isClosedDay && loading && (
+            <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Checking available times…
             </div>
-            {!allSlots.some(s => slotAvailability[s]) && (
-              <div className="alert alert-warning" style={{ marginTop: '1rem' }}>
-                No availability on this day. Please choose a different date.
+          )}
+
+          {hasAvail && (
+            <div className="grid gap-2">
+              <Label className="text-muted-foreground">
+                Available Times
+                <span className="ml-1.5 font-normal text-xs">(greyed = fully booked)</span>
+              </Label>
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
+                {allSlots.map(slot => {
+                  const available = slotAvailability[slot] ?? false;
+                  const selected  = time === slot;
+                  return (
+                    <button
+                      key={slot}
+                      disabled={!available || loading}
+                      onClick={() => onTimeSelect(slot)}
+                      className={cn(
+                        'rounded-lg border py-2 text-xs font-medium transition-all',
+                        selected
+                          ? 'border-foreground bg-foreground text-background'
+                          : available
+                            ? 'border-border bg-card text-foreground hover:border-foreground/30 hover:bg-accent'
+                            : 'border-border/40 bg-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                      )}
+                    >
+                      {formatTimeSlot(slot)}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </>
-        )}
+              {!anyAvailable && (
+                <Alert variant="warning">
+                  <AlertTriangle />
+                  <AlertDescription>No availability on this day. Please choose a different date.</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
 
-        {error && <div className="alert alert-danger" style={{ marginTop: '1rem' }}>{error}</div>}
-      </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
 
-      <div className="step-actions">
-        <button className="btn btn-ghost" onClick={onBack} disabled={loading}>← Back</button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" disabled={loading} onClick={onBack}>
+          <ArrowLeft className="size-4" /> Back
+        </Button>
         {loading && time && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-            <div className="spinner-sm" /> Finding you the best available slot…
-          </div>
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" /> Finding the best slot for you…
+          </span>
         )}
       </div>
     </div>
