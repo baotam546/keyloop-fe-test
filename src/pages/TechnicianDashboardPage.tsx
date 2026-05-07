@@ -9,11 +9,11 @@ import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 
 const STATUS_VARIANT: Record<string, 'success' | 'blue' | 'secondary' | 'destructive' | 'warning'> = {
+  requested:     'warning',
   confirmed:     'blue',
   'in-progress': 'warning',
-  completed:     'secondary',
+  completed:     'success',
   cancelled:     'destructive',
-  requested:     'warning',
 };
 
 type Tab = 'today' | 'upcoming' | 'completed';

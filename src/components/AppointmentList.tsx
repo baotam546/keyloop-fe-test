@@ -8,11 +8,11 @@ import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 
 const STATUS_VARIANT: Record<string, 'success' | 'blue' | 'secondary' | 'destructive' | 'warning'> = {
-  confirmed:    'blue',
+  requested:     'warning',
+  confirmed:     'blue',
   'in-progress': 'warning',
-  completed:    'secondary',
-  cancelled:    'destructive',
-  requested:    'warning',
+  completed:     'success',
+  cancelled:     'destructive',
 };
 
 function DetailCell({ label, value }: { label: string; value: string }) {
